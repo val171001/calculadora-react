@@ -1,7 +1,7 @@
 import React from 'react';
 import CalcButton from 'components/CalcButton/CalcButton';
 import {
-  sum, sub, mul, mod,
+  sum, sub, mul, mod, div,
 } from 'utils/operations';
 
 import './Calculator.css';
@@ -33,6 +33,13 @@ class Calculator extends React.Component {
       this.setState({ displayValue: '', memory: null, operation: null });
       return;
     }
+    if (op === '+/-') {
+      let { displayValue } = this.state;
+      if (displayValue.length > 8) return;
+      displayValue = displayValue.length > 0 ? `${+displayValue * -1}` : '-';
+      this.setState({ displayValue });
+      return;
+    }
     const { displayValue, memory, operation } = this.state;
     if (displayValue !== '' && memory === null) {
       this.setState({ memory: displayValue, operation: op, clean: true });
@@ -43,7 +50,8 @@ class Calculator extends React.Component {
       });
     }
     if (displayValue !== '' && memory !== null) {
-      const result = this.performOperation(op);
+      let result = this.performOperation(op);
+      result = result === null ? -1 : result;
       this.setState({
         displayValue: result < 0 || result > 999999999 ? 'ERROR' : result,
         memory: result < 0 || result > 999999999 ? null : result,
@@ -64,6 +72,8 @@ class Calculator extends React.Component {
         return mul(+memory, +displayValue);
       case '%':
         return mod(+memory, +displayValue);
+      case '/':
+        return div(+memory, +displayValue);
       default:
         return 'Error';
     }
@@ -80,9 +90,9 @@ class Calculator extends React.Component {
         </div>
         <div className="calculator-pad">
           <CalcButton label="AC" hook={this.operationHook} type="operation-helper" />
-          <CalcButton label="+/-" hook={this.operationHook} type="operation-helper" disabled />
+          <CalcButton label="+/-" hook={this.operationHook} type="operation-helper" />
           <CalcButton label="%" hook={this.operationHook} type="operation-helper" />
-          <CalcButton label="/" hook={this.operationHook} type="operation" disabled />
+          <CalcButton label="/" hook={this.operationHook} type="operation" />
           <CalcButton label="7" hook={this.numberHook} />
           <CalcButton label="8" hook={this.numberHook} />
           <CalcButton label="9" hook={this.numberHook} />
@@ -97,7 +107,7 @@ class Calculator extends React.Component {
           <CalcButton label="+" hook={this.operationHook} type="operation" />
           <CalcButton label="" hook={this.numberHook} disabled />
           <CalcButton label="0" hook={this.numberHook} />
-          <CalcButton label="" hook={this.numberHook} disabled />
+          <CalcButton label="." hook={this.numberHook} />
           <CalcButton label="=" hook={this.operationHook} type="operation" />
         </div>
       </div>
